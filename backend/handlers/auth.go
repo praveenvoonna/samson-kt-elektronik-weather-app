@@ -41,18 +41,15 @@ func Register(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	stmt, err := db.Prepare("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3)")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to prepare statement"})
-		return
-	}
-	defer stmt.Close()
+	var storedUserID int
 
-	_, err = stmt.Exec(user.Username, hashedPassword, time.Time(user.DateOfBirth))
+	err = db.QueryRow("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3) RETURNING id", user.Username, hashedPassword, time.Time(user.DateOfBirth)).Scan(&storedUserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
 		return
 	}
+
+	c.Set("userID", storedUserID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
 }
@@ -65,7 +62,9 @@ func Login(c *gin.Context, db *sql.DB) {
 	}
 
 	var storedPassword string
-	err := db.QueryRow("SELECT password FROM users WHERE username=$1", user.Username).Scan(&storedPassword)
+	var storedUserID int
+
+	err := db.QueryRow("SELECT id, password FROM users WHERE username=$1", user.Username).Scan(&storedUserID, &storedPassword)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
@@ -75,6 +74,8 @@ func Login(c *gin.Context, db *sql.DB) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
+
+	c.Set("userID", storedUserID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 }

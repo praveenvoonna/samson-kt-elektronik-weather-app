@@ -12,7 +12,6 @@ import (
 )
 
 var db *sql.DB
-var userID = 1 // Replace with the appropriate user ID
 
 func main() {
 	r := gin.Default()
@@ -47,11 +46,15 @@ func main() {
 	})
 
 	r.GET("/weather", handlers.GetCurrentWeather)
+
 	r.GET("/history", func(c *gin.Context) {
-		handlers.GetSearchHistory(c, db, userID) // Replace userID with the actual user ID
+		userID := c.GetInt("userID")
+		handlers.GetSearchHistory(c, db, userID)
 	})
+
 	r.DELETE("/history", func(c *gin.Context) {
-		handlers.ClearSearchHistory(c, db, userID) // Replace userID with the actual user ID
+		userID := c.GetInt("userID")
+		handlers.ClearSearchHistory(c, db, userID)
 	})
 
 	r.Run(":8080")

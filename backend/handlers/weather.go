@@ -61,7 +61,7 @@ type Sys struct {
 }
 
 func GetCurrentWeather(c *gin.Context) {
-	city := c.Query("city") // Assuming the city name is passed as a query parameter
+	city := c.Query("city")
 	apiKey := "ceb1a1a71184d74a1238a6a81ecf1d0f"
 
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", city, apiKey)
