@@ -11,6 +11,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var db *sql.DB
+var userID = 1 // Replace with the appropriate user ID
+
 func main() {
 	r := gin.Default()
 
@@ -35,11 +38,21 @@ func main() {
 
 	fmt.Println("Successfully connected to the PostgreSQL database!")
 
-	r.POST("/login", handlers.Login)
-	r.POST("/register", handlers.Register)
+	r.POST("/login", func(c *gin.Context) {
+		handlers.Login(c, db)
+	})
+
+	r.POST("/register", func(c *gin.Context) {
+		handlers.Register(c, db)
+	})
+
 	r.GET("/weather", handlers.GetCurrentWeather)
-	r.GET("/history", handlers.GetSearchHistory)
-	r.DELETE("/history", handlers.ClearSearchHistory)
+	r.GET("/history", func(c *gin.Context) {
+		handlers.GetSearchHistory(c, db, userID) // Replace userID with the actual user ID
+	})
+	r.DELETE("/history", func(c *gin.Context) {
+		handlers.ClearSearchHistory(c, db, userID) // Replace userID with the actual user ID
+	})
 
 	r.Run(":8080")
 }
