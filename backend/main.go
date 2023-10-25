@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/praveenvoonna/samson-kt-elektronik-weather-app/backend/handlers"
+	"github.com/praveenvoonna/weather-app/backend/handlers"
 
 	_ "github.com/lib/pq"
 )
