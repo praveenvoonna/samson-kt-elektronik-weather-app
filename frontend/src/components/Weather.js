@@ -4,10 +4,11 @@ import axios from 'axios';
 const Weather = () => {
     const [city, setCity] = useState('');
     const [weatherData, setWeatherData] = useState(null);
+    const apiKey = "ceb1a1a71184d74a1238a6a81ecf1d0f"
 
     const handleSearch = () => {
         // Implement weather search logic here
-        axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=YOUR_API_KEY`)
+        axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
             .then(response => {
                 setWeatherData(response.data);
             })
