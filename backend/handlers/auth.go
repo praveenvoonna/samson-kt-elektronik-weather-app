@@ -1,4 +1,3 @@
-// handlers/auth.go
 package handlers
 
 import (
@@ -7,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -15,12 +15,16 @@ type User struct {
 	DateOfBirth time.Time `json:"date_of_birth"`
 }
 
-// ...
-
 func Register(c *gin.Context, db *sql.DB) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hashedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
 
@@ -31,7 +35,7 @@ func Register(c *gin.Context, db *sql.DB) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Username, user.Password, user.DateOfBirth)
+	_, err = stmt.Exec(user.Username, hashedPassword, user.DateOfBirth)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
 		return
@@ -39,8 +43,6 @@ func Register(c *gin.Context, db *sql.DB) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
 }
-
-// ...
 
 func Login(c *gin.Context, db *sql.DB) {
 	var user User
@@ -56,10 +58,23 @@ func Login(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	if user.Password != storedPassword {
+	if err := comparePasswords(storedPassword, user.Password); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+}
+
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func comparePasswords(hashedPassword, password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err
 }
