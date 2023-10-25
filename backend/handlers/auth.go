@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,9 +11,21 @@ import (
 )
 
 type User struct {
-	Username    string    `json:"username"`
-	Password    string    `json:"password"`
-	DateOfBirth time.Time `json:"date_of_birth"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	DateOfBirth Date   `json:"date_of_birth"`
+}
+
+type Date time.Time
+
+func (d *Date) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	*d = Date(t)
+	return nil
 }
 
 func Register(c *gin.Context, db *sql.DB) {
@@ -35,7 +48,7 @@ func Register(c *gin.Context, db *sql.DB) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Username, hashedPassword, user.DateOfBirth)
+	_, err = stmt.Exec(user.Username, hashedPassword, time.Time(user.DateOfBirth))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
 		return
