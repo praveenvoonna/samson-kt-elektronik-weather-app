@@ -8,8 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetSearchHistory(c *gin.Context, db *sql.DB, userID int) {
-	rows, err := db.Query("SELECT id, city_name, search_time FROM search_history WHERE user_id = $1", userID)
+func SaveSearchHistory(db *sql.DB, username string, cityName string) error {
+	_, err := db.Exec("INSERT INTO search_history (username, city_name) VALUES ($1, $2)", username, cityName)
+	return err
+}
+
+func GetSearchHistory(c *gin.Context, db *sql.DB, username string) {
+	rows, err := db.Query("SELECT id, city_name, search_time FROM search_history WHERE username = $1", username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve search history"})
 		return
@@ -37,8 +42,8 @@ func GetSearchHistory(c *gin.Context, db *sql.DB, userID int) {
 	c.JSON(http.StatusOK, searchHistory)
 }
 
-func ClearSearchHistory(c *gin.Context, db *sql.DB, userID int) {
-	_, err := db.Exec("DELETE FROM search_history WHERE user_id=$1", userID)
+func ClearSearchHistory(c *gin.Context, db *sql.DB, username string) {
+	_, err := db.Exec("DELETE FROM search_history WHERE username=$1", username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear search history"})
 		return

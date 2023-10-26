@@ -17,21 +17,10 @@ var db *sql.DB
 func main() {
 	r := gin.Default()
 
-	// router.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"https://foo.com"},
-	// 	AllowMethods:     []string{"PUT", "PATCH"},
-	// 	AllowHeaders:     []string{"Origin"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// 	AllowOriginFunc: func(origin string) bool {
-	// 	  return origin == "https://github.com"
-	// 	},
-	// 	MaxAge: 12 * time.Hour,
-	//   }))
-
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your frontend's URL
+	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Authorization", "Content-Type"}
 	r.Use(cors.New(config))
 
 	host := "localhost"
@@ -63,16 +52,18 @@ func main() {
 		handlers.Register(c, db)
 	})
 
-	r.GET("/weather", handlers.GetCurrentWeather)
+	r.GET("/weather", func(c *gin.Context) {
+		handlers.GetCurrentWeather(c, db)
+	})
 
 	r.GET("/history", func(c *gin.Context) {
-		userID := c.GetInt("userID")
-		handlers.GetSearchHistory(c, db, userID)
+		username := c.GetString("username")
+		handlers.GetSearchHistory(c, db, username)
 	})
 
 	r.DELETE("/history", func(c *gin.Context) {
-		userID := c.GetInt("userID")
-		handlers.ClearSearchHistory(c, db, userID)
+		username := c.GetString("username")
+		handlers.ClearSearchHistory(c, db, username)
 	})
 
 	r.Run(":8080")

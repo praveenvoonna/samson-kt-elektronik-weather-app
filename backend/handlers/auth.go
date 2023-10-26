@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,19 +29,16 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-var jwtKey = []byte("my_secret_key") // You should change this in production
+var jwtKey = []byte("my_secret_key")
 
-// Generate a JWT token
 func generateToken(username string) (string, error) {
-	// Create the token
+
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
 
-	// Sign the token with the secret key
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		return "", err
@@ -63,17 +60,16 @@ func Register(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	var storedUserID int
+	var storedUserName string
 
-	err = db.QueryRow("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3) RETURNING id", user.Username, hashedPassword, time.Time(user.DateOfBirth)).Scan(&storedUserID)
+	err = db.QueryRow("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3) RETURNING username", user.Username, hashedPassword, time.Time(user.DateOfBirth)).Scan(&storedUserName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
 		return
 	}
 
-	c.Set("userID", storedUserID)
+	c.Set("username", storedUserName)
 
-	// Assuming registration is successful
 	tokenString, err := generateToken(user.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
@@ -91,9 +87,9 @@ func Login(c *gin.Context, db *sql.DB) {
 	}
 
 	var storedPassword string
-	var storedUserID int
+	var storedUserName string
 
-	err := db.QueryRow("SELECT id, password FROM users WHERE username=$1", user.Username).Scan(&storedUserID, &storedPassword)
+	err := db.QueryRow("SELECT username, password FROM users WHERE username=$1", user.Username).Scan(&storedUserName, &storedPassword)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
@@ -104,7 +100,7 @@ func Login(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	c.Set("userID", storedUserID)
+	c.Set("username", storedUserName)
 
 	// Assuming login is successful
 	tokenString, err := generateToken(user.Username)

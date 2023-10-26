@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 type WeatherResponse struct {
@@ -60,7 +63,33 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
-func GetCurrentWeather(c *gin.Context) {
+func GetCurrentWeather(c *gin.Context, db *sql.DB) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+		return
+	}
+
+	splitToken := strings.Split(authHeader, "Bearer ")
+	if len(splitToken) != 2 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		return
+	}
+
+	token := splitToken[1] // Extract the token
+
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my_secret_key"), nil // Replace "my_secret_key" with your actual secret key
+	})
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// The token is valid, continue with the weather data retrieval
+
 	city := c.Query("city")
 	apiKey := "ceb1a1a71184d74a1238a6a81ecf1d0f"
 
@@ -76,6 +105,14 @@ func GetCurrentWeather(c *gin.Context) {
 	var weatherData WeatherResponse
 	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode weather data"})
+		return
+	}
+
+	// Call SaveSearchHistory with appropriate username and city values
+	username, _ := claims["username"].(string)
+	err = SaveSearchHistory(db, username, city)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save search history"})
 		return
 	}
 
