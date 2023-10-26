@@ -57,13 +57,11 @@ func main() {
 	})
 
 	r.GET("/history", func(c *gin.Context) {
-		username := c.GetString("username")
-		handlers.GetSearchHistory(c, db, username)
+		handlers.GetSearchHistory(c, db)
 	})
 
 	r.DELETE("/history", func(c *gin.Context) {
-		username := c.GetString("username")
-		handlers.ClearSearchHistory(c, db, username)
+		handlers.ClearSearchHistory(c, db)
 	})
 
 	r.Run(":8080")
