@@ -14,6 +14,9 @@ const Login = () => {
   const navigateToDashboard = () => {
     navigate("/dashboard");
   };
+  const navigateToRegistration = () => {
+    navigate("/register")
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,6 +74,9 @@ const Login = () => {
           {/* submit button */}
           <Button variant="primary" type="submit">
             Login
+          </Button>
+          <Button variant="primary" onClick={navigateToRegistration}>
+            Registration
           </Button>
           {errMessage ? <h1>{errMessage}</h1> : null}
         </Form>

@@ -9,18 +9,24 @@ const Dashboard = () => {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [historyData, setHistoryData] = useState([]);
+  const token = sessionStorage.getItem("token");
+  const navigate = useNavigate();
+  const navigateToHome = () => {
+    navigate("/");
+  };
+
+  if (!token) {
+    navigateToHome()
+  }
 
   const getWeatherData = async () => {
     try {
-      // const token = sessionStorage.getItem("token");
-      const response = await axios.get(
-        `http://localhost:8080/weather?city=${city}`
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // }
-      );
+      const token = sessionStorage.getItem("token");
+      const response = await axios.get(`http://localhost:8080/weather?city=${city}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setWeatherData(response.data);
     } catch (error) {
       console.error("Error:", error);
@@ -51,11 +57,6 @@ const Dashboard = () => {
     getWeatherData();
   };
 
-  const navigate = useNavigate();
-  const navigateToHome = () => {
-    navigate("/");
-  };
-
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     navigateToHome();
@@ -66,6 +67,7 @@ const Dashboard = () => {
   };
 
   return (
+    token &&
     <div className="dashboard-container">
       <h2>Dashboard</h2>
       <Button variant="secondary" onClick={handleLogout}>
