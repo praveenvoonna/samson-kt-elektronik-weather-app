@@ -1,34 +1,23 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from "react";
 
-const Weather = () => {
-    const [city, setCity] = useState('');
-    const [weatherData, setWeatherData] = useState(null);
-    const apiKey = "ceb1a1a71184d74a1238a6a81ecf1d0f"
-
-    const handleSearch = () => {
-        // Implement weather search logic here
-        axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
-            .then(response => {
-                setWeatherData(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    };
-
-    return (
-        <div>
-            <h1>Current Weather and History</h1>
-            <input type="text" placeholder="City Name" value={city} onChange={(e) => setCity(e.target.value)} />
-            <button onClick={handleSearch}>Search</button>
-            {weatherData && (
-                <div>
-                    {/* Display weather data in tabular form */}
-                </div>
-            )}
-        </div>
-    );
+const Weather = ({ weatherData }) => {
+  return (
+    <div>
+      <h3>Weather Information for {weatherData.name}</h3>
+      <p>Coordinates: {weatherData.coord.lat} (Latitude), {weatherData.coord.lon} (Longitude)</p>
+      <p>Weather: {weatherData.weather[0].main} - {weatherData.weather[0].description}</p>
+      <p>Temperature: {weatherData.main.temp} Kelvin</p>
+      <p>Feels Like: {weatherData.main.feels_like} Kelvin</p>
+      <p>Minimum Temperature: {weatherData.main.temp_min} Kelvin</p>
+      <p>Maximum Temperature: {weatherData.main.temp_max} Kelvin</p>
+      <p>Pressure: {weatherData.main.pressure} hPa</p>
+      <p>Humidity: {weatherData.main.humidity}%</p>
+      <p>Wind Speed: {weatherData.wind.speed} m/s</p>
+      <p>Cloudiness: {weatherData.clouds.all}%</p>
+      <p>Sunrise Time: {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}</p>
+      <p>Sunset Time: {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}</p>
+    </div>
+  );
 };
 
 export default Weather;
