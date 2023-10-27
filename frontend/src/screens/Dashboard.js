@@ -48,7 +48,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getHistoryData();
-  }, []);
+  }, historyData);
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [errMessage, setError] = useState("");
+
+  useEffect(() =>  {
+    sessionStorage.removeItem("token");
+  }, []);
 
   const navigate = useNavigate();
   const navigateToDashboard = () => {
