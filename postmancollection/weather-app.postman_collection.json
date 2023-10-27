@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "85bb12aa-3ed3-4d6b-a5a7-3dec1bc91b8a",
-		"name": "samson-kt-elektronik-weather-app",
+		"name": "weather-app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "19982317"
 	},
@@ -9,10 +9,20 @@
 		{
 			"name": "weather",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg0NzU1MjcsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYSJ9.q2wgrmvHYlNoVCFtSUfUsiJoNtnt0_UYP8qQ8FW8IcI",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/weather?city=Berlin",
+					"raw": "http://localhost:8080/weather?city=Hyderabad",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -24,7 +34,7 @@
 					"query": [
 						{
 							"key": "city",
-							"value": "Berlin"
+							"value": "Hyderabad"
 						}
 					]
 				}
@@ -38,7 +48,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"praveenvoonna\",\r\n    \"password\": \"112233\",\r\n    \"date_of_birth\": \"1997-06-17\"\r\n}",
+					"raw": "{\r\n    \"username\": \"prasantvoonna\",\r\n    \"password\": \"112233\",\r\n    \"date_of_birth\": \"1993-03-13\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -66,7 +76,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"praveenvoonna\",\r\n    \"password\": \"112233\"\r\n}",
+					"raw": "{\r\n    \"username\": \"prasantvoonna\",\r\n    \"password\": \"112233\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -90,6 +100,16 @@
 		{
 			"name": "get history",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg0OTQ0OTEsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYSJ9.n6ty4wiljLnvxdHOCp4I5-yYl5ZAnWuhcLLlGSM-wgE",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -101,6 +121,41 @@
 					"port": "8080",
 					"path": [
 						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete history",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg0OTQ0OTEsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYSJ9.n6ty4wiljLnvxdHOCp4I5-yYl5ZAnWuhcLLlGSM-wgE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/history?id=14",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"history"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "14"
+						}
 					]
 				}
 			},
