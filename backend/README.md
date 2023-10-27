@@ -13,11 +13,15 @@ This project is a backend service that manages user search history using a Postg
 
 2. Run the schema.sql file located inside the `database` folder using the SQL shell (psql) to create the necessary tables and schema for the project.
 
+3. Set DB_HOST, DB_PORT, DB_USER, DB_PASSWORD in .env file according to your postgre sql local environment
+
 ## Backend Setup
 
 1. Clone the repository to your local machine.
 
 2. Navigate to the backend folder.
+
+3. Set your own OPEN_WEATHER_API_KEY and JWT_SECRET_KEY if you want to modify
 
 3. Run the following command to install all necessary libraries:
 
