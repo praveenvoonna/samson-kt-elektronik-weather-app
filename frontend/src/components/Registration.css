@@ -1,34 +1,46 @@
 .register-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-  
-  .register-container h2 {
-    margin-bottom: 1.5rem;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    width: 300px;
-  }
-  
-  form label {
-    margin-bottom: 0.5rem;
-  }
-  
-  form input {
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  form button {
-    padding: 0.5rem;
-    width: 100px;
-    align-self: center;
-    margin-top: 1rem;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.register-container h2 {
+  margin-bottom: 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+}
+
+form label {
+  margin-bottom: 0.5rem;
+}
+
+.MuiFormControl-root {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.MuiInputBase-input {
+  padding: 0.7rem;
+}
+
+form button {
+  padding: 0.7rem;
+  width: 120px;
+  align-self: center;
+  margin-top: 1rem;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}

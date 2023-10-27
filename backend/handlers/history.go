@@ -48,7 +48,8 @@ func GetSearchHistory(c *gin.Context, db *sql.DB) {
 
 func ClearSearchHistory(c *gin.Context, db *sql.DB) {
 	username := getUsernameFromToken(c)
-	_, err := db.Exec("DELETE FROM search_history WHERE username=$1", username)
+	id := c.Query("id")
+	_, err := db.Exec("DELETE FROM search_history WHERE username = $1 AND id = $2", username, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear search history"})
 		return

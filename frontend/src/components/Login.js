@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Button, TextField, Typography, Container, Box } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
@@ -9,18 +9,20 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [errMessage, setError] = useState("");
+  const navigate = useNavigate();
 
-  useEffect(() =>  {
+  useEffect(() => {
     sessionStorage.removeItem("token");
   }, []);
 
-  const navigate = useNavigate();
   const navigateToDashboard = () => {
     navigate("/dashboard");
   };
+
   const navigateToRegistration = () => {
-    navigate("/register")
-  }
+    navigate("/register");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -47,45 +49,56 @@ const Login = () => {
   };
 
   return (
-    <>
+    <Container component="main" maxWidth="xs">
       <div className="login-container">
-        <h2>Login</h2>
-        <Form onSubmit={handleSubmit}>
-          {/* username */}
-          <Form.Group controlId="formBasicUsername">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              name="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
-            />
-          </Form.Group>
-
-          {/* password */}
-          <Form.Group controlId="formBasicPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-            />
-          </Form.Group>
-
-          {/* submit button */}
-          <Button variant="primary" type="submit">
+        <Typography component="h1" variant="h5">
+          Login
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
+            autoFocus
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
             Login
           </Button>
-          <Button variant="primary" onClick={navigateToRegistration}>
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }}
+            onClick={navigateToRegistration}
+          >
             Registration
           </Button>
-          {errMessage ? <h1>{errMessage}</h1> : null}
-        </Form>
+          {errMessage && <Typography variant="body2" color="error">{errMessage}</Typography>}
+        </Box>
       </div>
-    </>
+    </Container>
   );
 };
 

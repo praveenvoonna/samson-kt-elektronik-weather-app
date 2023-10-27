@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
 import axios from "axios";
+import {
+  Button,
+  TextField,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Container,
+  Box,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
@@ -21,11 +34,14 @@ const Dashboard = () => {
   const getWeatherData = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.get(`http://localhost:8080/weather?city=${city}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `http://localhost:8080/weather?city=${city}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setWeatherData(response.data);
     } catch (error) {
       console.error("Error:", error);
@@ -64,82 +80,134 @@ const Dashboard = () => {
     return (temp - 273.15).toFixed(2);
   };
 
+  const deleteHistoryHandller = async (id) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/history?id=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        getHistoryData();
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   return (
     token && (
-      <div className="dashboard-container">
-        <h2>Dashboard</h2>
-        <Button variant="secondary" onClick={handleLogout}>
-          Logout
-        </Button>
-        <Form onSubmit={handleSubmit}>
-          {/* city input */}
-          <Form.Group controlId="formBasicCity">
-            <Form.Label>City</Form.Label>
-            <Form.Control
-              type="text"
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            my: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h4" component="h2" gutterBottom>
+            Dashboard
+          </Typography>
+          <Button variant="contained" onClick={handleLogout}>
+            Logout
+          </Button>
+          <Box component="form" sx={{ mt: 3 }} onSubmit={handleSubmit}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="city"
+              label="City"
+              name="city"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Enter city name"
             />
-          </Form.Group>
+            <Button type="submit" variant="contained" sx={{ mt: 2, mb: 2 }}>
+              Get Weather
+            </Button>
+          </Box>
 
-          {/* get weather button */}
-          <Button variant="primary" type="submit">
-            Get Weather
-          </Button>
-        </Form>
+          {weatherData && (
+            <Box sx={{ my: 4 }}>
+              <Typography variant="h5" component="h3" gutterBottom>
+                Weather Data for {city}
+              </Typography>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="weather data table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Description</TableCell>
+                      <TableCell>Temperature (Celsius)</TableCell>
+                      <TableCell>Pressure</TableCell>
+                      <TableCell>Humidity</TableCell>
+                      <TableCell>Wind Speed</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow key={weatherData.id}>
+                      <TableCell>
+                        {weatherData.weather[0].description}
+                      </TableCell>
+                      <TableCell>
+                        {convertKelvinToCelsius(weatherData.main.temp)}
+                      </TableCell>
+                      <TableCell>{weatherData.main.pressure}</TableCell>
+                      <TableCell>{weatherData.main.humidity}</TableCell>
+                      <TableCell>{weatherData.wind.speed}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
 
-        {/* display weather data */}
-        {weatherData && (
-          <div>
-            <h3>Weather Data for {city}</h3>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Temperature (Celsius)</th>
-                  <th>Pressure</th>
-                  <th>Humidity</th>
-                  <th>Wind Speed</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{weatherData.weather[0].description}</td>
-                  <td>{convertKelvinToCelsius(weatherData.main.temp)}</td>
-                  <td>{weatherData.main.pressure}</td>
-                  <td>{weatherData.main.humidity}</td>
-                  <td>{weatherData.wind.speed}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* display history data */}
-        <div>
-          <h3>Search History</h3>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>City Name</th>
-                <th>Search Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historyData &&
-                historyData.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{item.city_name}</td>
-                    <td>{new Date(item.search_time).toLocaleString()}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+          {historyData && (
+            <Box sx={{ my: 4 }}>
+              <Typography variant="h5" component="h3" gutterBottom>
+                Search History
+              </Typography>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="history data table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell>City Name</TableCell>
+                      <TableCell>Search Time</TableCell>
+                      <TableCell>Action</TableCell>{" "}
+                      {/* New Table Header Column for Actions */}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {historyData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.id}</TableCell>
+                        <TableCell>{item.city_name}</TableCell>
+                        <TableCell>
+                          {new Date(item.search_time).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => {deleteHistoryHandller(item.id)}}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        </Box>
+      </Container>
     )
   );
 };
