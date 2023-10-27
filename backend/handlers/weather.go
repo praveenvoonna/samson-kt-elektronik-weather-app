@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"github.com/praveenvoonna/weather-app/backend/config"
+	"github.com/praveenvoonna/weather-app/backend/middleware"
 	"go.uber.org/zap"
 )
 
@@ -64,76 +64,16 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
-func SetUserContext() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
-			return
-		}
-
-		splitToken := strings.Split(authHeader, "Bearer ")
-		if len(splitToken) != 2 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
-			return
-		}
-
-		token := splitToken[1]
-
-		claims := jwt.MapClaims{}
-		_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte("my_secret_key"), nil
-		})
-
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-			return
-		}
-
-		username, exists := claims["username"].(string)
-		if !exists {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve username from token"})
-			return
-		}
-		c.Set("username", username)
-		c.Next()
-	}
-}
-
 func GetCurrentWeather(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		logger.Error("no auth hearder found")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
-		return
-	}
-
-	splitToken := strings.Split(authHeader, "Bearer ")
-	if len(splitToken) != 2 {
-		logger.Error("invalid token format")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
-		return
-	}
-
-	tokenString := splitToken[1]
-
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
-	if err != nil {
-		logger.Error("invalid token", zap.Error(err))
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token " + err.Error()})
-	}
-	var username string
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		username = fmt.Sprint(claims["username"])
-		logger.Info("name " + username)
-	} else {
-		logger.Error("invalid token no user name found")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-		return
+	username, errMsg, err := middleware.AuthenticateJwtToken(authHeader)
+	if errMsg != "" || err != nil {
+		logger.Error("can not authenticate jwt token", zap.Error(err))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": errMsg})
 	}
 
 	city := c.Query("city")
-	apiKey := "ceb1a1a71184d74a1238a6a81ecf1d0f"
+	apiKey := config.GetOpenWeatherConfig().APIKey
 
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", city, apiKey)
 

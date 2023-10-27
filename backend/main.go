@@ -7,6 +7,5 @@ import (
 
 func main() {
 	config.LoadEnv()
-	config := config.GetConfig()
-	server.StartServer(config)
+	server.StartServer()
 }

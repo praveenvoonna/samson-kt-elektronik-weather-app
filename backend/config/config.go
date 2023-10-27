@@ -8,12 +8,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
-
-type Config struct {
-	Database    DatabaseConfig
-	OpenWeather OpenWeatherConfig
-}
 
 type DatabaseConfig struct {
 	Host     string
@@ -38,27 +34,14 @@ func LoadEnv() {
 	}
 }
 
-func GetConfig() *Config {
-	return &Config{
-		Database: DatabaseConfig{
-			Host:     os.Getenv("DB_HOST"),
-			Port:     getEnvAsInt("DB_PORT"),
-			User:     os.Getenv("DB_USER"),
-			Password: os.Getenv("DB_PASSWORD"),
-			DBName:   os.Getenv("DB_NAME"),
-		},
-		OpenWeather: OpenWeatherConfig{
-			APIKey: os.Getenv("API_KEY"),
-		},
+func GetDatabaseConfig(logger *zap.Logger) *DatabaseConfig {
+	return &DatabaseConfig{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     getEnvAsInt("DB_PORT", logger),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
 	}
-}
-
-func getEnvAsInt(key string) int {
-	value, err := strconv.Atoi(os.Getenv(key))
-	if err != nil {
-		log.Fatalf("Error converting %s to int", key)
-	}
-	return value
 }
 
 func GetCorsConfig() gin.HandlerFunc {
@@ -72,5 +55,19 @@ func GetCorsConfig() gin.HandlerFunc {
 func GetJwtConfig() *JwtConfig {
 	return &JwtConfig{
 		JwtKey: []byte(os.Getenv("JWT_SECRET_KEY")),
+	}
+}
+
+func getEnvAsInt(key string, logger *zap.Logger) int {
+	value, err := strconv.Atoi(os.Getenv(key))
+	if err != nil {
+		log.Fatalf("error converting %s to int", key)
+	}
+	return value
+}
+
+func GetOpenWeatherConfig() *OpenWeatherConfig {
+	return &OpenWeatherConfig{
+		APIKey: os.Getenv("OPEN_WEATHER_API_KEY"),
 	}
 }

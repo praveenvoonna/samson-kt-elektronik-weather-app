@@ -38,7 +38,7 @@ func Register(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 
 	c.Set("username", storedUserName)
 
-	tokenString, err := middleware.GenerateToken(user.Username, logger)
+	tokenString, err := middleware.GenerateToken(user.Username)
 	if err != nil {
 		logger.Error("can not generate jwt token for user", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
@@ -74,7 +74,7 @@ func Login(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 
 	c.Set("username", storedUserName)
 
-	tokenString, err := middleware.GenerateToken(user.Username, logger)
+	tokenString, err := middleware.GenerateToken(user.Username)
 	if err != nil {
 		logger.Error("can not generate jwt token for user", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})

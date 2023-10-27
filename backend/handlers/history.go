@@ -17,7 +17,13 @@ func SaveSearchHistory(db *sql.DB, username, cityName string) error {
 }
 
 func GetSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
-	username := middleware.GetUsernameFromToken(c)
+	authHeader := c.GetHeader("Authorization")
+	username, errMsg, err := middleware.AuthenticateJwtToken(authHeader)
+	if errMsg != "" || err != nil {
+		logger.Error("can not authenticate jwt token", zap.Error(err))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": errMsg})
+	}
+
 	logger.Info("get search history called for " + username)
 	rows, err := db.Query("SELECT id, city_name, search_time FROM search_history WHERE username = $1", username)
 	if err != nil {
@@ -50,15 +56,34 @@ func GetSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 }
 
 func ClearSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
-	username := middleware.GetUsernameFromToken(c)
+	authHeader := c.GetHeader("Authorization")
+	username, errMsg, err := middleware.AuthenticateJwtToken(authHeader)
+	if errMsg != "" || err != nil {
+		logger.Error("can not authenticate jwt token", zap.Error(err))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": errMsg})
+	}
+
 	id := c.Query("id")
 	logger.Info("clear search history called for " + username + " id " + id)
-	_, err := db.Exec("DELETE FROM search_history WHERE username = $1 AND id = $2", username, id)
+	result, err := db.Exec("DELETE FROM search_history WHERE username = $1 AND id = $2", username, id)
 	if err != nil {
 		logger.Error("can not delete weather history data from db", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to clear search history"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "search history cleared successfully"})
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		logger.Error("error while checking affected rows", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking affected rows"})
+		return
+	}
+
+	if rowsAffected > 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "search history cleared successfully"})
+	} else {
+		logger.Error("can not find history with given id", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "no rows were affected"})
+	}
+
 }

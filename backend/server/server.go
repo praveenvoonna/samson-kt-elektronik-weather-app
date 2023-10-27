@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func StartServer(configVars *config.Config) {
+func StartServer() {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
@@ -20,8 +20,9 @@ func StartServer(configVars *config.Config) {
 	corsConfig := config.GetCorsConfig()
 	router.Use(corsConfig)
 
+	databaseConfig := config.GetDatabaseConfig(logger)
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		configVars.Database.Host, configVars.Database.Port, configVars.Database.User, configVars.Database.Password, configVars.Database.DBName)
+		databaseConfig.Host, databaseConfig.Port, databaseConfig.User, databaseConfig.Password, databaseConfig.DBName)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
