@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/praveenvoonna/weather-app/backend/middleware"
+
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func SaveSearchHistory(db *sql.DB, username, cityName string) error {
@@ -13,11 +16,13 @@ func SaveSearchHistory(db *sql.DB, username, cityName string) error {
 	return err
 }
 
-func GetSearchHistory(c *gin.Context, db *sql.DB) {
-	username := getUsernameFromToken(c)
+func GetSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
+	username := middleware.GetUsernameFromToken(c)
+	logger.Info("get search history called for " + username)
 	rows, err := db.Query("SELECT id, city_name, search_time FROM search_history WHERE username = $1", username)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve search history"})
+		logger.Error("can not fetch weather history data from db", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve search history"})
 		return
 	}
 	defer rows.Close()
@@ -30,7 +35,8 @@ func GetSearchHistory(c *gin.Context, db *sql.DB) {
 		var searchTime time.Time
 		err := rows.Scan(&id, &cityName, &searchTime)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve search history"})
+			logger.Error("can not scan rows of weather data from db", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve search history"})
 			return
 		}
 		searchHistory = append(searchHistory, map[string]interface{}{
@@ -43,14 +49,16 @@ func GetSearchHistory(c *gin.Context, db *sql.DB) {
 	c.JSON(http.StatusOK, searchHistory)
 }
 
-func ClearSearchHistory(c *gin.Context, db *sql.DB) {
-	username := getUsernameFromToken(c)
+func ClearSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
+	username := middleware.GetUsernameFromToken(c)
 	id := c.Query("id")
+	logger.Info("clear search history called for " + username + " id " + id)
 	_, err := db.Exec("DELETE FROM search_history WHERE username = $1 AND id = $2", username, id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear search history"})
+		logger.Error("can not delete weather history data from db", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to clear search history"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Search history cleared successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "search history cleared successfully"})
 }

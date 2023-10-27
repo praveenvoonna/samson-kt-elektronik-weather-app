@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"go.uber.org/zap"
 )
 
 type WeatherResponse struct {
@@ -67,13 +68,13 @@ func SetUserContext() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
 			return
 		}
 
 		splitToken := strings.Split(authHeader, "Bearer ")
 		if len(splitToken) != 2 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
 			return
 		}
 
@@ -85,13 +86,13 @@ func SetUserContext() gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 
 		username, exists := claims["username"].(string)
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve username from token"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve username from token"})
 			return
 		}
 		c.Set("username", username)
@@ -99,16 +100,18 @@ func SetUserContext() gin.HandlerFunc {
 	}
 }
 
-func GetCurrentWeather(c *gin.Context, db *sql.DB) {
+func GetCurrentWeather(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+		logger.Error("no auth hearder found")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
 		return
 	}
 
 	splitToken := strings.Split(authHeader, "Bearer ")
 	if len(splitToken) != 2 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		logger.Error("invalid token format")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
 		return
 	}
 
@@ -116,14 +119,16 @@ func GetCurrentWeather(c *gin.Context, db *sql.DB) {
 
 	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token " + err.Error()})
+		logger.Error("invalid token", zap.Error(err))
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token " + err.Error()})
 	}
 	var username string
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
 		username = fmt.Sprint(claims["username"])
-		fmt.Printf("name = %s", username)
+		logger.Info("name " + username)
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		logger.Error("invalid token no user name found")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		return
 	}
 
@@ -134,20 +139,23 @@ func GetCurrentWeather(c *gin.Context, db *sql.DB) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch weather data"})
+		logger.Error("can not fetch weather data from openweathermap api", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch weather data"})
 		return
 	}
 	defer resp.Body.Close()
 
 	var weatherData WeatherResponse
 	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode weather data"})
+		logger.Error("can not decode weather data from openweathermap api", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode weather data"})
 		return
 	}
 
 	err = SaveSearchHistory(db, username, city)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save search history"})
+		logger.Error("can not save weather history data", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save search history"})
 		return
 	}
 
