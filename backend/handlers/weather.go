@@ -77,11 +77,11 @@ func SetUserContext() gin.HandlerFunc {
 			return
 		}
 
-		token := splitToken[1] // Extract the token
+		token := splitToken[1]
 
 		claims := jwt.MapClaims{}
 		_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte("my_secret_key"), nil // Replace "my_secret_key" with your actual secret key
+			return []byte("my_secret_key"), nil
 		})
 
 		if err != nil {
@@ -89,7 +89,6 @@ func SetUserContext() gin.HandlerFunc {
 			return
 		}
 
-		// Set the username in the context
 		username, exists := claims["username"].(string)
 		if !exists {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve username from token"})

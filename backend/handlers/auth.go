@@ -102,7 +102,6 @@ func Login(c *gin.Context, db *sql.DB) {
 
 	c.Set("username", storedUserName)
 
-	// Assuming login is successful
 	tokenString, err := generateToken(user.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
@@ -123,4 +122,24 @@ func hashPassword(password string) (string, error) {
 func comparePasswords(hashedPassword, password string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err
+}
+
+func getUsernameFromToken(c *gin.Context) string {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return ""
+	}
+	splitToken := strings.Split(authHeader, "Bearer ")
+	if len(splitToken) != 2 {
+		return ""
+	}
+	token := splitToken[1]
+	claims := jwt.MapClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my_secret_key"), nil
+	})
+	if err != nil || !parsedToken.Valid {
+		return ""
+	}
+	return claims["username"].(string)
 }

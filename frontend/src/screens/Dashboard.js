@@ -21,6 +21,8 @@ const Dashboard = () => {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [historyData, setHistoryData] = useState([]);
+  const [weatherErrorMessage, setWeatherError] = useState("");
+  const [historyErrorMessage, setHistoryError] = useState("");
   const token = sessionStorage.getItem("token");
   const navigate = useNavigate();
   const navigateToHome = () => {
@@ -43,8 +45,9 @@ const Dashboard = () => {
         }
       );
       setWeatherData(response.data);
-    } catch (error) {
+    }  catch (error) {
       console.error("Error:", error);
+      setWeatherError("error while fetch weather info");
     }
   };
 
@@ -59,6 +62,7 @@ const Dashboard = () => {
       setHistoryData(response.data);
     } catch (error) {
       console.error("Error:", error);
+      setHistoryError("error while fetch weather history info");
     }
   };
 
@@ -95,6 +99,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error:", error);
+      setHistoryError("error while delete weather history info");
     }
   }
 
@@ -130,6 +135,7 @@ const Dashboard = () => {
             <Button type="submit" variant="contained" sx={{ mt: 2, mb: 2 }}>
               Get Weather
             </Button>
+            {weatherErrorMessage && <Typography variant="body2" color="error">{weatherErrorMessage}</Typography>}
           </Box>
 
           {weatherData && (
@@ -204,6 +210,7 @@ const Dashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              {historyErrorMessage && <Typography variant="body2" color="error">{historyErrorMessage}</Typography>}
             </Box>
           )}
         </Box>

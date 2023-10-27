@@ -43,8 +43,8 @@ const Login = () => {
       sessionStorage.setItem("token", response.data.token);
       navigateToDashboard();
     } catch (error) {
-      console.error("Error:", error);
-      setError("Login failed");
+      console.error("error:", error);
+      setError("login failed");
     }
   };
 

@@ -5,10 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"strings"
-
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
 
 func SaveSearchHistory(db *sql.DB, username, cityName string) error {
@@ -56,24 +53,4 @@ func ClearSearchHistory(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Search history cleared successfully"})
-}
-
-func getUsernameFromToken(c *gin.Context) string {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		return ""
-	}
-	splitToken := strings.Split(authHeader, "Bearer ")
-	if len(splitToken) != 2 {
-		return ""
-	}
-	token := splitToken[1]
-	claims := jwt.MapClaims{}
-	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte("my_secret_key"), nil
-	})
-	if err != nil || !parsedToken.Valid {
-		return ""
-	}
-	return claims["username"].(string)
 }

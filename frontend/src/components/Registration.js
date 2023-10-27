@@ -46,8 +46,8 @@ const Register = () => {
       sessionStorage.setItem("token", response.data.token);
       navigateToDashboard();
     } catch (error) {
-      console.error("Error:", error);
-      setError("Registration failed");
+      console.error("error:", error);
+      setError("registration failed");
     }
   };
 
