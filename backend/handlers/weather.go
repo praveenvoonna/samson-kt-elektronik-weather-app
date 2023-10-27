@@ -63,6 +63,43 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
+func SetUserContext() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			return
+		}
+
+		splitToken := strings.Split(authHeader, "Bearer ")
+		if len(splitToken) != 2 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			return
+		}
+
+		token := splitToken[1] // Extract the token
+
+		claims := jwt.MapClaims{}
+		_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte("my_secret_key"), nil // Replace "my_secret_key" with your actual secret key
+		})
+
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
+		}
+
+		// Set the username in the context
+		username, exists := claims["username"].(string)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve username from token"})
+			return
+		}
+		c.Set("username", username)
+		c.Next()
+	}
+}
+
 func GetCurrentWeather(c *gin.Context, db *sql.DB) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
@@ -76,19 +113,20 @@ func GetCurrentWeather(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	token := splitToken[1] // Extract the token
+	tokenString := splitToken[1]
 
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte("my_secret_key"), nil // Replace "my_secret_key" with your actual secret key
-	})
-
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
 	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token " + err.Error()})
+	}
+	var username string
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		username = fmt.Sprint(claims["username"])
+		fmt.Printf("name = %s", username)
+	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
 	}
-
-	// The token is valid, continue with the weather data retrieval
 
 	city := c.Query("city")
 	apiKey := "ceb1a1a71184d74a1238a6a81ecf1d0f"
@@ -108,8 +146,6 @@ func GetCurrentWeather(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// Call SaveSearchHistory with appropriate username and city values
-	username, _ := claims["username"].(string)
 	err = SaveSearchHistory(db, username, city)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save search history"})

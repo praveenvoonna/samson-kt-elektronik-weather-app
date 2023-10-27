@@ -1,53 +1,58 @@
 .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-  }
-  
-  .dashboard-container h2 {
-    margin-bottom: 20px;
-  }
-  
-  button {
-    margin-top: 20px;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-  }
-  
-  form label {
-    margin-bottom: 10px;
-  }
-  
-  form input {
-    padding: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .table {
-    width: 60%;
-    margin-top: 40px;
-    border-collapse: collapse;
-  }
-  
-  th,
-  td {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-  }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  h3 {
-    margin-top: 40px;
-    margin-bottom: 20px;
-  }
-  
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+}
+
+.btn {
+  margin-top: 10px;
+}
+
+.secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
