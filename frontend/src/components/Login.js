@@ -44,7 +44,11 @@ const Login = () => {
       navigateToDashboard();
     } catch (error) {
       console.error("error:", error);
-      setError("login failed");
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(error.response.data.error);
+      } else {
+        setError("Login failed. Please try again.");
+      }
     }
   };
 

@@ -19,7 +19,7 @@ import "./Dashboard.css";
 
 const Dashboard = () => {
   const [city, setCity] = useState("");
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState({});
   const [historyData, setHistoryData] = useState([]);
   const [weatherErrorMessage, setWeatherError] = useState("");
   const [historyErrorMessage, setHistoryError] = useState("");
@@ -45,9 +45,15 @@ const Dashboard = () => {
         }
       );
       setWeatherData(response.data);
+      setWeatherError("");
+      getHistoryData();
     } catch (error) {
       console.error("Error:", error);
-      setWeatherError("error while fetch weather info");
+      if (error.response && error.response.data && error.response.data.error) {
+        setHistoryError(error.response.data.error);
+      } else {
+        setHistoryError("Registration failed. Please try again.");
+      }
     }
   };
 
@@ -60,15 +66,20 @@ const Dashboard = () => {
         },
       });
       setHistoryData(response.data);
+      setHistoryError("");
     } catch (error) {
       console.error("Error:", error);
-      setHistoryError("error while fetch weather history info");
+      if (error.response && error.response.data && error.response.data.error) {
+        setHistoryError(error.response.data.error);
+      } else {
+        setHistoryError("Registration failed. Please try again.");
+      }
     }
   };
 
   useEffect(() => {
     getHistoryData();
-  }, historyData);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -97,9 +108,14 @@ const Dashboard = () => {
       if (response.status === 200) {
         getHistoryData();
       }
+      setHistoryError("");
     } catch (error) {
       console.error("Error:", error);
-      setHistoryError("error while delete weather history info");
+      if (error.response && error.response.data && error.response.data.error) {
+        setHistoryError(error.response.data.error);
+      } else {
+        setHistoryError("Registration failed. Please try again.");
+      }
     }
   };
 
@@ -142,7 +158,7 @@ const Dashboard = () => {
             )}
           </Box>
 
-          {weatherData && (
+          {weatherData && weatherData.weather && (
             <Box sx={{ my: 4 }}>
               <Typography variant="h5" component="h3" gutterBottom>
                 Weather Data for {city}

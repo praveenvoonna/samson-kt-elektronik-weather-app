@@ -51,7 +51,11 @@ const Register = () => {
       navigateToDashboard();
     } catch (error) {
       console.error("error:", error);
-      setError("registration failed");
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(error.response.data.error);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     }
   };
 
