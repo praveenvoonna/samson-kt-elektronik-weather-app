@@ -27,14 +27,12 @@ This project is a backend service that manages user search history using a Postg
 
 ```
 go mod tidy
-
 ```
 
 4. Run the main.go file to start the backend server:
 
 ```
 go run main.go
-
 ```
 
 The backend will start running on the default port (usually 8080).

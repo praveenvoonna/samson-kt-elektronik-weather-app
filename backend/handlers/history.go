@@ -53,6 +53,7 @@ func GetSearchHistory(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 	}
 
 	if len(searchHistory) == 0 {
+		logger.Warn("search history not found")
 		c.JSON(http.StatusNotFound, gin.H{"message": "search history not found"})
 	} else {
 		c.JSON(http.StatusOK, searchHistory)
