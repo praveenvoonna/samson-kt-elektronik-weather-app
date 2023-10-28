@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { Button, TextField, Typography, Container, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Registration.css";
@@ -35,11 +35,15 @@ const Register = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:8080/register", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8080/register",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.log(response.data);
       setToken(response.data.token);
@@ -106,7 +110,11 @@ const Register = () => {
           >
             Login
           </Button>
-          {errMessage && <Typography variant="body2" color="error">{errMessage}</Typography>}
+          {errMessage && (
+            <Typography variant="body2" color="error">
+              {errMessage}
+            </Typography>
+          )}
         </Box>
       </div>
     </Container>

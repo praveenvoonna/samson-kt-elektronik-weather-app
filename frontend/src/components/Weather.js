@@ -4,8 +4,14 @@ const Weather = ({ weatherData }) => {
   return (
     <div>
       <h3>Weather Information for {weatherData.name}</h3>
-      <p>Coordinates: {weatherData.coord.lat} (Latitude), {weatherData.coord.lon} (Longitude)</p>
-      <p>Weather: {weatherData.weather[0].main} - {weatherData.weather[0].description}</p>
+      <p>
+        Coordinates: {weatherData.coord.lat} (Latitude), {weatherData.coord.lon}{" "}
+        (Longitude)
+      </p>
+      <p>
+        Weather: {weatherData.weather[0].main} -{" "}
+        {weatherData.weather[0].description}
+      </p>
       <p>Temperature: {weatherData.main.temp} Kelvin</p>
       <p>Feels Like: {weatherData.main.feels_like} Kelvin</p>
       <p>Minimum Temperature: {weatherData.main.temp_min} Kelvin</p>
@@ -14,8 +20,14 @@ const Weather = ({ weatherData }) => {
       <p>Humidity: {weatherData.main.humidity}%</p>
       <p>Wind Speed: {weatherData.wind.speed} m/s</p>
       <p>Cloudiness: {weatherData.clouds.all}%</p>
-      <p>Sunrise Time: {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}</p>
-      <p>Sunset Time: {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}</p>
+      <p>
+        Sunrise Time:{" "}
+        {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}
+      </p>
+      <p>
+        Sunset Time:{" "}
+        {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
+      </p>
     </div>
   );
 };

@@ -45,7 +45,7 @@ const Dashboard = () => {
         }
       );
       setWeatherData(response.data);
-    }  catch (error) {
+    } catch (error) {
       console.error("Error:", error);
       setWeatherError("error while fetch weather info");
     }
@@ -101,7 +101,7 @@ const Dashboard = () => {
       console.error("Error:", error);
       setHistoryError("error while delete weather history info");
     }
-  }
+  };
 
   return (
     token && (
@@ -135,7 +135,11 @@ const Dashboard = () => {
             <Button type="submit" variant="contained" sx={{ mt: 2, mb: 2 }}>
               Get Weather
             </Button>
-            {weatherErrorMessage && <Typography variant="body2" color="error">{weatherErrorMessage}</Typography>}
+            {weatherErrorMessage && (
+              <Typography variant="body2" color="error">
+                {weatherErrorMessage}
+              </Typography>
+            )}
           </Box>
 
           {weatherData && (
@@ -200,7 +204,9 @@ const Dashboard = () => {
                           <Button
                             variant="contained"
                             color="error"
-                            onClick={() => {deleteHistoryHandller(item.id)}}
+                            onClick={() => {
+                              deleteHistoryHandller(item.id);
+                            }}
                           >
                             Delete
                           </Button>
@@ -210,7 +216,11 @@ const Dashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {historyErrorMessage && <Typography variant="body2" color="error">{historyErrorMessage}</Typography>}
+              {historyErrorMessage && (
+                <Typography variant="body2" color="error">
+                  {historyErrorMessage}
+                </Typography>
+              )}
             </Box>
           )}
         </Box>

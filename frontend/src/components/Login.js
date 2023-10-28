@@ -95,7 +95,11 @@ const Login = () => {
           >
             Registration
           </Button>
-          {errMessage && <Typography variant="body2" color="error">{errMessage}</Typography>}
+          {errMessage && (
+            <Typography variant="body2" color="error">
+              {errMessage}
+            </Typography>
+          )}
         </Box>
       </div>
     </Container>

@@ -4,11 +4,9 @@ import Home from "./screens/Home";
 import Login from "./components/Login";
 import Registration from "./components/Registration";
 import Weather from "./components/Weather";
-import Dashboard from "./screens/Dashboard"
-
+import Dashboard from "./screens/Dashboard";
 
 function App() {
-
   return (
     <Router>
       <Routes>
