@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/praveenvoonna/weather-app/backend/config"
 	"github.com/praveenvoonna/weather-app/backend/middleware"
+	"github.com/praveenvoonna/weather-app/backend/validations"
 	"go.uber.org/zap"
 )
 
@@ -73,6 +74,11 @@ func GetCurrentWeather(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 	}
 
 	city := c.Query("city")
+
+	if !validations.ValidateWeatherCheckInput(c, city, logger) {
+		return
+	}
+
 	apiKey := config.GetOpenWeatherConfig().APIKey
 
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", city, apiKey)

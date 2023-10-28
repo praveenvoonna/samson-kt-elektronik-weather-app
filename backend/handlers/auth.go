@@ -8,6 +8,7 @@ import (
 	"github.com/praveenvoonna/weather-app/backend/middleware"
 	"github.com/praveenvoonna/weather-app/backend/models"
 	"github.com/praveenvoonna/weather-app/backend/utils"
+	"github.com/praveenvoonna/weather-app/backend/validations"
 	"go.uber.org/zap"
 )
 
@@ -20,6 +21,11 @@ func Register(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 		return
 	}
 
+	if !validations.ValidateUserRegistrationInput(c, &user, logger) {
+		logger.Error("input validation failed")
+		return
+	}
+
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		logger.Error("failed to hash password", zap.Error(err))
@@ -29,7 +35,7 @@ func Register(c *gin.Context, db *sql.DB, logger *zap.Logger) {
 
 	var storedUserName string
 
-	err = db.QueryRow("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3) RETURNING username", user.Username, hashedPassword, models.Date(user.DateOfBirth)).Scan(&storedUserName)
+	err = db.QueryRow("INSERT INTO users(username, password, date_of_birth) VALUES($1, $2, $3) RETURNING username", user.Username, hashedPassword, user.DateOfBirth).Scan(&storedUserName)
 	if err != nil {
 		logger.Error("can not run inster into users db query", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to insert user"})

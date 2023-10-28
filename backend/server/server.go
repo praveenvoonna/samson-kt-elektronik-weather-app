@@ -15,6 +15,8 @@ func StartServer() {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
+	config.LoadEnv(logger)
+
 	router := gin.Default()
 
 	corsConfig := config.GetCorsConfig()

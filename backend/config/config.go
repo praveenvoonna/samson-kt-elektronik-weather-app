@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 
@@ -27,10 +26,10 @@ type JwtConfig struct {
 	JwtKey []byte
 }
 
-func LoadEnv() {
+func LoadEnv(logger *zap.Logger) {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		logger.Error("Error loading .env file", zap.Error(err))
 	}
 }
 
@@ -61,7 +60,7 @@ func GetJwtConfig() *JwtConfig {
 func getEnvAsInt(key string, logger *zap.Logger) int {
 	value, err := strconv.Atoi(os.Getenv(key))
 	if err != nil {
-		log.Fatalf("error converting %s to int", key)
+		logger.Error("error converting "+key+" to int", zap.Error(err))
 	}
 	return value
 }
