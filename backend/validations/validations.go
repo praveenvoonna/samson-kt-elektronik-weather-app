@@ -31,10 +31,17 @@ func ValidateUserRegistrationInput(c *gin.Context, user *models.User, logger *za
 	}
 
 	dateFormat := "2006-01-02"
-	_, err := time.Parse(dateFormat, user.DateOfBirth)
+	parsedDate, err := time.Parse(dateFormat, user.DateOfBirth)
 	if err != nil {
 		logger.Error("invalid date of birth format", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date of birth format. Use YYYY-MM-DD"})
+		return false
+	}
+
+	today := time.Now()
+	if parsedDate.After(today) {
+		logger.Error("date of birth is in the future")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "date of birth cannot be in the future"})
 		return false
 	}
 
