@@ -19,23 +19,27 @@ import "./Dashboard.css";
 
 const Dashboard = () => {
   const [city, setCity] = useState("");
-  const [weatherData, setWeatherData] = useState({});
+  const [weatherData, setWeatherData] = useState(null);
   const [historyData, setHistoryData] = useState([]);
   const [weatherErrorMessage, setWeatherError] = useState("");
-  const [historyErrorMessage, setHistoryError] = useState("");
+  const [getHistoryErrorMessage, setGetHistoryError] = useState("");
+  const [deleteHistoryErrorMessage, setDeleteHistoryError] = useState("");
   const token = sessionStorage.getItem("token");
   const navigate = useNavigate();
   const navigateToHome = () => {
     navigate("/");
   };
 
-  if (!token) {
-    navigateToHome();
-  }
+  useEffect(() => {
+    if (!token) {
+      navigateToHome();
+    } else {
+      getHistoryData();
+    }
+  }, []);
 
   const getWeatherData = async () => {
     try {
-      const token = sessionStorage.getItem("token");
       const response = await axios.get(
         `http://localhost:8080/weather?city=${city}`,
         {
@@ -50,36 +54,39 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error:", error);
       if (error.response && error.response.data && error.response.data.error) {
-        setHistoryError(error.response.data.error);
+        setWeatherError(error.response.data.error);
       } else {
-        setHistoryError("Registration failed. Please try again.");
+        setWeatherError("Get weather data failed. Please try again.");
       }
+      setWeatherData(null)
     }
   };
 
   const getHistoryData = async () => {
     try {
-      const token = sessionStorage.getItem("token");
       const response = await axios.get("http://localhost:8080/history", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setHistoryData(response.data);
-      setHistoryError("");
+      setGetHistoryError("");
     } catch (error) {
       console.error("Error:", error);
-      if (error.response && error.response.data && error.response.data.error) {
-        setHistoryError(error.response.data.error);
+      if (error.response && error.response.status === 404) {
+        setGetHistoryError("No history data found.");
+        setHistoryData([]);
+      } else if (
+        error.response &&
+        error.response.data &&
+        error.response.data.error
+      ) {
+        setGetHistoryError(error.response.data.error);
       } else {
-        setHistoryError("Registration failed. Please try again.");
+        setGetHistoryError("Get history data failed. Please try again.");
       }
     }
   };
-
-  useEffect(() => {
-    getHistoryData();
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -95,7 +102,7 @@ const Dashboard = () => {
     return (temp - 273.15).toFixed(2);
   };
 
-  const deleteHistoryHandller = async (id) => {
+  const deleteHistoryHandler = async (id) => {
     try {
       const response = await axios.delete(
         `http://localhost:8080/history?id=${id}`,
@@ -108,13 +115,13 @@ const Dashboard = () => {
       if (response.status === 200) {
         getHistoryData();
       }
-      setHistoryError("");
+      setDeleteHistoryError("");
     } catch (error) {
       console.error("Error:", error);
       if (error.response && error.response.data && error.response.data.error) {
-        setHistoryError(error.response.data.error);
+        setDeleteHistoryError(error.response.data.error);
       } else {
-        setHistoryError("Registration failed. Please try again.");
+        setDeleteHistoryError("Delete history failed. Please try again.");
       }
     }
   };
@@ -192,24 +199,23 @@ const Dashboard = () => {
             </Box>
           )}
 
-          {historyData && historyData.length != 0 && (
-            <Box sx={{ my: 4 }}>
-              <Typography variant="h5" component="h3" gutterBottom>
-                Search History
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="history data table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>City Name</TableCell>
-                      <TableCell>Search Time</TableCell>
-                      <TableCell>Action</TableCell>{" "}
-                      {/* New Table Header Column for Actions */}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {historyData.map((item) => (
+          <Box sx={{ my: 4 }}>
+            <Typography variant="h5" component="h3" gutterBottom>
+              Search History
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="history data table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>City Name</TableCell>
+                    <TableCell>Search Time</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {historyData.length !== 0 ? (
+                    historyData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.id}</TableCell>
                         <TableCell>{item.city_name}</TableCell>
@@ -221,24 +227,32 @@ const Dashboard = () => {
                             variant="contained"
                             color="error"
                             onClick={() => {
-                              deleteHistoryHandller(item.id);
+                              deleteHistoryHandler(item.id);
                             }}
                           >
                             Delete
                           </Button>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              {historyErrorMessage && (
-                <Typography variant="body2" color="error">
-                  {historyErrorMessage}
-                </Typography>
-              )}
-            </Box>
-          )}
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4}>
+                        <Typography variant="h6" gutterBottom>
+                          {getHistoryErrorMessage || "No history data to show"}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {deleteHistoryErrorMessage && (
+              <Typography variant="body2" color="error">
+                {deleteHistoryErrorMessage}
+              </Typography>
+            )}
+          </Box>
         </Box>
       </Container>
     )

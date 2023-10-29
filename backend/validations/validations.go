@@ -4,6 +4,7 @@ package validations
 
 import (
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -71,5 +72,17 @@ func ValidateWeatherCheckInput(c *gin.Context, city string, logger *zap.Logger) 
 		return false
 	}
 
+	match, err := regexp.MatchString("^[a-zA-Z ]*$", city)
+	if err != nil {
+		logger.Error("error in regex matching", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return false
+	}
+
+	if !match {
+		logger.Error("city input contains invalid characters")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "city contains invalid characters"})
+		return false
+	}
 	return true
 }
