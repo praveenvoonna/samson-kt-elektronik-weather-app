@@ -22,7 +22,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/weather?city=Hyderabad",
+					"raw": "http://localhost:8080/weather?city=new york",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -34,7 +34,7 @@
 					"query": [
 						{
 							"key": "city",
-							"value": "Hyderabad"
+							"value": "new york"
 						}
 					]
 				}
@@ -105,7 +105,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg0ODg5NDUsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYTE1NjY3In0.t7ijYMs0J9IIXfnIxuO2-Ozslo6Zlo6xhj7e6xOph2k",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg1NzEzMDMsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYSJ9.i0zxfD2vwn9hughNEwpwS7H30SnyPnIsiodkrj1E4Ag",
 							"type": "string"
 						}
 					]
@@ -134,7 +134,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg0ODg5NDUsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYTE1NjY3In0.t7ijYMs0J9IIXfnIxuO2-Ozslo6Zlo6xhj7e6xOph2ks",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTg1NzEzMDMsInVzZXJuYW1lIjoicHJhc2FudHZvb25uYSJ9.i0zxfD2vwn9hughNEwpwS7H30SnyPnIsiodkrj1E4Ag",
 							"type": "string"
 						}
 					]
@@ -142,7 +142,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/history?id=86",
+					"raw": "http://localhost:8080/history?id=66",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -154,7 +154,39 @@
 					"query": [
 						{
 							"key": "id",
-							"value": "86"
+							"value": "66"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "openweatherget",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.openweathermap.org/data/2.5/weather?q=Hyderabad&appid=ceb1a1a71184d74a1238a6a81ecf1d0f",
+					"protocol": "https",
+					"host": [
+						"api",
+						"openweathermap",
+						"org"
+					],
+					"path": [
+						"data",
+						"2.5",
+						"weather"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Hyderabad"
+						},
+						{
+							"key": "appid",
+							"value": "ceb1a1a71184d74a1238a6a81ecf1d0f"
 						}
 					]
 				}
