@@ -192,7 +192,7 @@ const Dashboard = () => {
             </Box>
           )}
 
-          {historyData && (
+          {historyData && historyData.length != 0 && (
             <Box sx={{ my: 4 }}>
               <Typography variant="h5" component="h3" gutterBottom>
                 Search History
